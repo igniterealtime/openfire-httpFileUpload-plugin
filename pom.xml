@@ -4,13 +4,49 @@
     <parent>
         <artifactId>plugins</artifactId>
         <groupId>org.igniterealtime.openfire</groupId>
-        <version>4.3.0-beta</version>
+        <version>4.3.0</version>
     </parent>
     <groupId>org.igniterealtime.openfire.plugins</groupId>
     <artifactId>httpfileupload</artifactId>
     <name>HTTP File Upload Plugin</name>
     <description>Allows clients to share files, as described in the XEP-0363 'HTTP File Upload' specification.</description>
     <version>1.1.1-SNAPSHOT</version>
+
+    <distributionManagement>
+        <!-- Repository in which we deploy this project, when desired. -->
+        <repository>
+            <id>igniterealtime</id>
+            <name>Ignite Realtime Repository</name>
+            <url>https://www.igniterealtime.org/archiva/repository/maven/</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <!-- Where we obtain dependencies. -->
+        <repository>
+            <id>igniterealtime</id>
+            <name>Ignite Realtime Repository</name>
+            <url>https://igniterealtime.org/archiva/repository/maven/</url>
+        </repository>
+        <!-- For the weird version of libidn that is pulled in transitively -->
+        <repository>
+            <id>springplugins</id>
+            <name>Spring Plugins Repository</name>
+            <url>http://repo.spring.io/plugins-release/</url>
+        </repository>
+
+    </repositories>
+
+    <pluginRepositories>
+        <!-- Typically used to retrieve Maven plugins used by this project from. This
+             apparently is also used to obtain the dependencies _used by_ plugins
+             (eg: openfire-plugin-assembly-descriptor) -->
+        <pluginRepository>
+            <id>igniterealtime</id>
+            <name>Ignite Realtime Repository</name>
+            <url>https://igniterealtime.org/archiva/repository/maven/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <sourceDirectory>src/java</sourceDirectory>
@@ -25,8 +61,7 @@
         <dependency>
             <groupId>nl.goodbytes.xmpp.xep</groupId>
             <artifactId>httpfileuploadcomponent</artifactId>
-            <!-- NB. Later versions are available but require code changes -->
-            <version>1.1.3</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>
