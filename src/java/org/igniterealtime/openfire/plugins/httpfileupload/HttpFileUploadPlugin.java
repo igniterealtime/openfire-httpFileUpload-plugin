@@ -1,12 +1,12 @@
 package org.igniterealtime.openfire.plugins.httpfileupload;
 
-import nl.goodbytes.xmpp.xep0363.Component;
-import nl.goodbytes.xmpp.xep0363.Slot;
-import nl.goodbytes.xmpp.xep0363.SlotManager;
-import nl.goodbytes.xmpp.xep0363.Repository;
-import nl.goodbytes.xmpp.xep0363.RepositoryManager;
-import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
-import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
+import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.SimpleInstanceManager;
@@ -24,15 +24,13 @@ import org.jivesoftware.util.PropertyEventDispatcher;
 import org.jivesoftware.util.PropertyEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xmpp.component.ComponentException;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import nl.goodbytes.xmpp.xep0363.Component;
+import nl.goodbytes.xmpp.xep0363.Repository;
+import nl.goodbytes.xmpp.xep0363.RepositoryManager;
+import nl.goodbytes.xmpp.xep0363.SlotManager;
+import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
+import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
 
 /**
  * Created by guus on 18-11-17.
@@ -55,7 +53,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
     {
         try
         {
-            SlotManager.getInstance().setWebPath( "httpfileupload" );
+//            SlotManager.getInstance().setWebPath( "httpfileupload" );
             SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
             SlotManager.getInstance().setWebHost( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebHost", XMPPServer.getInstance().getServerInfo().getHostname() ) );
             SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.getInstance().getHttpBindSecurePort() ) );
