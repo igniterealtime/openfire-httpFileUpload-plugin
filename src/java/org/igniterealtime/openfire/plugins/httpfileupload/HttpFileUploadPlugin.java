@@ -53,10 +53,10 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
     {
         try
         {
-//            SlotManager.getInstance().setWebPath( "httpfileupload" );
             SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
             SlotManager.getInstance().setWebHost( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebHost", XMPPServer.getInstance().getServerInfo().getHostname() ) );
             SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.getInstance().getHttpBindSecurePort() ) );
+            SlotManager.getInstance().setWebContextRoot( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebContextRoot", "/httpfileupload" ) );
             SlotManager.getInstance().setMaxFileSize( JiveGlobals.getLongProperty( "plugin.httpfileupload.maxFileSize", SlotManager.DEFAULT_MAX_FILE_SIZE ) );
 
             Repository repository;
