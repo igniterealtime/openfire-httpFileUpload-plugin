@@ -1,6 +1,6 @@
 # Openfire HTTP File Upload Plugin
 
-Adds XEP-0363 functionality to Openfire that allows compliant clients to exchange files.
+Adds [XEP-0363](https://xmpp.org/extensions/xep-0363.html) functionality to Openfire that allows compliant clients to exchange files.
 
 ## CI Build Status
 
