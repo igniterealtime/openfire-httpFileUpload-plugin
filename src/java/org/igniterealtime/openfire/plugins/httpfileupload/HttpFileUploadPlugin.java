@@ -82,7 +82,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
             component = new Component( XMPPServer.getInstance().getServerInfo().getXMPPDomain());
 
-            // Add the Webchat sources to the same context as the one that's providing the BOSH interface.
+            // Add the webapp to the same context as the one that's providing the BOSH interface.
             context = new WebAppContext( null, pluginDirectory.getPath() + File.separator + "classes", "/httpfileupload" );
             context.setClassLoader( this.getClass().getClassLoader() );
 
