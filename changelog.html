@@ -41,8 +41,17 @@
 
 <h1>HTTP File Upload Plugin Changelog</h1>
 
-<p><b>1.1.4</b> -- (tbd)</p>
+<p><b>1.1.4</b> -- (November 4, 2021)</p>
 <ul>
+    <li>Updated to HttpFileUploadComponent v1.4.0, which resolves:</li>
+    <ul>
+        <li>Updated Guava library to 30.0-jre to address known vulnerabilities with earlier versions.</li>
+        <li>Improve content-type detection of uploaded content.</li>
+        <li><a href="https://github.com/guusdk/httpfileuploadcomponent/issues/23">Issue #31:</a> Add new webprotocol option to make the previously hardcoded http protocol configurable.</li>
+        <li><a href="https://github.com/guusdk/httpfileuploadcomponent/issues/23">Issue #33:</a> Add new wildcardCORS option that adds CORS headers to relax access restrictions imposed by browsers.</li>
+        <li><a href="https://github.com/guusdk/httpfileuploadcomponent/issues/23">Issue #23:</a> Replace UUID with something more secure.</li>
+    </ul>
+
     <li>Updated to HttpFileUploadComponent v1.3.0, which resolves:</li>
     <ul>
         <li><a href="https://github.com/guusdk/httpfileuploadcomponent/issues/23">Issue #23:</a> Replace UUID with something more secure.</li>

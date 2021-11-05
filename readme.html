@@ -75,6 +75,15 @@
 <h2>Configuration</h2>
 
 <p>
+    By default, the plugin will store all uploaded files in a temporary directory that is provided by the Operating System.
+    This directory is configured to be deleted, after Openfire quits. Some Operating Systems are known to periodically
+    purge these temporary directories, which is another potential source of data loss. This plugin can be configured to
+    use any other directory for data storage, by providing the path for that directory in the property <samp>plugin.httpfileupload.fileRepo</samp>.
+    Note that the directory is expected to exist (this plugin will not attempt to create it if it is missing). Be sure
+    that the process owner of the Openfire process has enough permissions to read and write in that directory.
+</p>
+
+<p>
     To configure the maximum allowable file size to be uploaded by clients, the property
     <samp>plugin.httpfileupload.maxFileSize</samp> can be set to a value in bytes. If not set, a default value is used. To
     disable the file size limitation, set this property to a value of <samp>-1</samp>.
