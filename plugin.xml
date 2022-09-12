@@ -6,6 +6,5 @@
     <author>Guus der Kinderen</author>
     <version>${project.version}</version>
     <date>2022-09-12</date>
-    <minServerVersion>4.1.0</minServerVersion>
-    <maxServerVersion>4.8.0</maxServerVersion>
+    <minServerVersion>4.7.0</minServerVersion>
 </plugin>

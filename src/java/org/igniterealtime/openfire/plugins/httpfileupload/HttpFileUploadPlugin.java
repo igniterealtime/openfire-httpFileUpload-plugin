@@ -55,7 +55,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         {
             SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
             SlotManager.getInstance().setWebHost( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebHost", XMPPServer.getInstance().getServerInfo().getHostname() ) );
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.getInstance().getHttpBindSecurePort() ) );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
             SlotManager.getInstance().setWebContextRoot( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebContextRoot", "/httpfileupload" ) );
             SlotManager.getInstance().setMaxFileSize( JiveGlobals.getLongProperty( "plugin.httpfileupload.maxFileSize", SlotManager.DEFAULT_MAX_FILE_SIZE ) );
 
@@ -177,7 +177,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
         if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
         {
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.getInstance().getHttpBindSecurePort() ) );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
     }
 
@@ -203,7 +203,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
         if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
         {
-            SlotManager.getInstance().setWebPort( HttpBindManager.getInstance().getHttpBindSecurePort() );
+            SlotManager.getInstance().setWebPort( HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() );
         }
     }
 }
