@@ -166,6 +166,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         if ( "plugin.httpfileupload.announcedWebProtocol".equals( property ) )
         {
             SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
         else
 
@@ -177,7 +178,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
         if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
         {
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
     }
 
@@ -192,6 +193,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         if ( "plugin.httpfileupload.announcedWebProtocol".equals( property ) )
         {
             SlotManager.getInstance().setWebProtocol( "https" );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
         else
 
@@ -203,7 +205,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
         if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
         {
-            SlotManager.getInstance().setWebPort( HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() );
+            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
     }
 }
