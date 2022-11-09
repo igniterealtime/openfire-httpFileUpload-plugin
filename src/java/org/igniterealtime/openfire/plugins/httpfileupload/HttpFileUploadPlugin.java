@@ -1,13 +1,11 @@
 package org.igniterealtime.openfire.plugins.httpfileupload;
 
-import java.io.File;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import nl.goodbytes.xmpp.xep0363.Component;
+import nl.goodbytes.xmpp.xep0363.Repository;
+import nl.goodbytes.xmpp.xep0363.RepositoryManager;
+import nl.goodbytes.xmpp.xep0363.SlotManager;
+import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
+import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.SimpleInstanceManager;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
