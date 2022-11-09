@@ -19,25 +19,92 @@ import org.jivesoftware.openfire.component.InternalComponentManager;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.http.HttpBindManager;
-import org.jivesoftware.util.JiveGlobals;
-import org.jivesoftware.util.PropertyEventDispatcher;
-import org.jivesoftware.util.PropertyEventListener;
+import org.jivesoftware.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.goodbytes.xmpp.xep0363.Component;
-import nl.goodbytes.xmpp.xep0363.Repository;
-import nl.goodbytes.xmpp.xep0363.RepositoryManager;
-import nl.goodbytes.xmpp.xep0363.SlotManager;
-import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
-import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
+import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by guus on 18-11-17.
  */
-public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
+public class HttpFileUploadPlugin implements Plugin
 {
     private static final Logger Log = LoggerFactory.getLogger( HttpFileUploadPlugin.class );
+
+    /**
+     * Controls the scheme that is used in URLs advertised for file uploads/downloads.
+     */
+    public static final SystemProperty<String> ANNOUNCED_WEB_PROTOCOL = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.httpfileupload.announcedWebProtocol")
+        .setDefaultValue("https")
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> SlotManager.getInstance().setWebProtocol(newValue))
+        .build();
+
+    /**
+     * Controls the server address that is used in URLs advertised for file uploads/downloads.
+     */
+    public static final SystemProperty<String> ANNOUNCED_WEB_HOST = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.httpfileupload.announcedWebHost")
+        .setDefaultValue(XMPPServer.getInstance().getServerInfo().getHostname())
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> SlotManager.getInstance().setWebHost(newValue))
+        .build();
+
+    /**
+     * Controls the TCP port that is used in URLs advertised for file uploads/downloads.
+     */
+    public static final SystemProperty<Integer> ANNOUNCED_WEB_PORT = SystemProperty.Builder.ofType(Integer.class)
+        .setKey("plugin.httpfileupload.announcedWebPort")
+        .setDefaultValue(ANNOUNCED_WEB_PROTOCOL.getValue().equalsIgnoreCase("http") ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue())
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> SlotManager.getInstance().setWebPort(newValue))
+        .build();
+
+    /**
+     * Controls the context root that is used in URLs advertised for file uploads/downloads.
+     */
+    public static final SystemProperty<String> ANNOUNCED_WEB_CONTEXT_ROOT = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.httpfileupload.announcedWebContextRoot")
+        .setDefaultValue("/httpfileupload")
+        .setDynamic(false)
+        .setPlugin("HTTP File Upload")
+        .build();
+
+    /**
+     * Defines the maximum size (in bytes) of files that can be uploaded.
+     */
+    public static final SystemProperty<Long> MAX_FILE_SIZE = SystemProperty.Builder.ofType(Long.class)
+        .setKey("plugin.httpfileupload.maxFileSize")
+        .setDefaultValue(SlotManager.DEFAULT_MAX_FILE_SIZE)
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> SlotManager.getInstance().setMaxFileSize(newValue))
+        .build();
+
+    /**
+     * Defines the file system path (directory) in which data is stored on the server. If the path is absent, or
+     * invalid, a temporary directory will be used.
+     */
+    public static final SystemProperty<String> FILE_REPO = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.httpfileupload.fileRepo")
+        .setDynamic(false)
+        .setPlugin("HTTP File Upload")
+        .build();
+
+    static {
+        // Issue #37: when switching to a new scheme, default to the corresponding port.
+        ANNOUNCED_WEB_PROTOCOL.addListener( newValue -> SlotManager.getInstance().setWebPort( ANNOUNCED_WEB_PORT.getValue() ));
+    }
 
     private Component component;
     private WebAppContext context;
@@ -53,14 +120,16 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
     {
         try
         {
-            SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
-            SlotManager.getInstance().setWebHost( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebHost", XMPPServer.getInstance().getServerInfo().getHostname() ) );
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
-            SlotManager.getInstance().setWebContextRoot( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebContextRoot", "/httpfileupload" ) );
-            SlotManager.getInstance().setMaxFileSize( JiveGlobals.getLongProperty( "plugin.httpfileupload.maxFileSize", SlotManager.DEFAULT_MAX_FILE_SIZE ) );
+            SlotManager.getInstance().initialize(new OpenfireSlotProvider());
+
+            SlotManager.getInstance().setWebProtocol(ANNOUNCED_WEB_PROTOCOL.getValue());
+            SlotManager.getInstance().setWebHost(ANNOUNCED_WEB_HOST.getValue());
+            SlotManager.getInstance().setWebPort(ANNOUNCED_WEB_PORT.getValue());
+            SlotManager.getInstance().setWebContextRoot(ANNOUNCED_WEB_CONTEXT_ROOT.getValue());
+            SlotManager.getInstance().setMaxFileSize(MAX_FILE_SIZE.getValue());
 
             Repository repository;
-            final String fileRepo = JiveGlobals.getProperty( "plugin.httpfileupload.fileRepo", null );
+            final String fileRepo = FILE_REPO.getValue();
 
             if ( fileRepo == null)
             {
@@ -77,8 +146,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
                 }
             }
             RepositoryManager.getInstance().initialize( repository );
-
-            PropertyEventDispatcher.addListener( this );
 
             component = new Component( XMPPServer.getInstance().getServerInfo().getXMPPDomain());
 
@@ -111,8 +178,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
     @Override
     public void destroyPlugin()
     {
-        PropertyEventDispatcher.removeListener( this );
-
         for ( final String publicResource : publicResources )
         {
             AuthCheckFilter.removeExclude( publicResource );
@@ -128,84 +193,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         if ( component != null )
         {
             InternalComponentManager.getInstance().removeComponent( "httpfileupload" );
-        }
-    }
-
-    @Override
-    public void propertySet( String property, Map params )
-    {
-        setProperty( property );
-    }
-
-    @Override
-    public void propertyDeleted( String property, Map params )
-    {
-        deleteProperty( property );
-    }
-
-    @Override
-    public void xmlPropertySet( String property, Map params )
-    {
-        setProperty( property );
-    }
-
-    @Override
-    public void xmlPropertyDeleted( String property, Map params )
-    {
-        deleteProperty( property );
-    }
-
-    public final void setProperty( String property )
-    {
-        if ( "plugin.httpfileupload.maxFileSize".equals( property ) )
-        {
-            SlotManager.getInstance().setMaxFileSize( JiveGlobals.getLongProperty( "plugin.httpfileupload.maxFileSize", SlotManager.DEFAULT_MAX_FILE_SIZE ) );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebProtocol".equals( property ) )
-        {
-            SlotManager.getInstance().setWebProtocol( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebProtocol", "https" ) );
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebHost".equals( property ) )
-        {
-            SlotManager.getInstance().setWebHost( JiveGlobals.getProperty( "plugin.httpfileupload.announcedWebHost", XMPPServer.getInstance().getServerInfo().getHostname() ) );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
-        {
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
-        }
-    }
-
-    public final void deleteProperty( String property )
-    {
-        if ( "plugin.httpfileupload.maxFileSize".equals( property ) )
-        {
-            SlotManager.getInstance().setMaxFileSize( SlotManager.DEFAULT_MAX_FILE_SIZE );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebProtocol".equals( property ) )
-        {
-            SlotManager.getInstance().setWebProtocol( "https" );
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebHost".equals( property ) )
-        {
-            SlotManager.getInstance().setWebHost( XMPPServer.getInstance().getServerInfo().getHostname() );
-        }
-        else
-
-        if ( "plugin.httpfileupload.announcedWebPort".equals( property ) )
-        {
-            SlotManager.getInstance().setWebPort( JiveGlobals.getIntProperty( "plugin.httpfileupload.announcedWebPort", "http".equalsIgnoreCase(SlotManager.getInstance().getWebProtocol()) ? HttpBindManager.HTTP_BIND_PORT.getValue() : HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() ) );
         }
     }
 }
