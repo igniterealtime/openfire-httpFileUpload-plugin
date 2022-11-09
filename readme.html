@@ -58,8 +58,11 @@
 <h2>Overview</h2>
 
 <p>
-    The HTTP File Upload plugin adds functionality to Openfire that allows compliant clients to exchange files.
+    The HTTP File Upload plugin adds functionality to Openfire that allows compliant clients to exchange files. The
+    protocol implemented by this plugin is defined in <a href="https://xmpp.org/extensions/xep-0363.html">XEP-0363:
+    HTTP File Upload</a>.
 </p>
+
 <p>
     <strong>Note: </strong> This plugin requires the HTTP bind option in Openfire to be enabled:
     <br>Server -> Server Settings -> HTTP Binding
@@ -72,7 +75,7 @@
     automatically deployed. To upgrade to a new version, copy the new httpfileupload.jar file over the existing file.
 </p>
 
-<h2>Configuration</h2>
+<h2 id="configuration">Configuration</h2>
 
 <p>
     By default, the plugin will store all uploaded files in a temporary directory that is provided by the Operating System.
@@ -112,6 +115,117 @@
     files, the plugin by default stores the files that are being transferred in a temporary directory that is removed
     when Openfire is shut down. The content of this directory is purged when its total size is larger than the remaining
     disc space.
+</p>
+
+<h2>When using in an Openfire cluster</h2>
+
+<p>
+    Special consideration needs to be given to the deployment of this plugin in a cluster of Openfire instances. This
+    section outlines the main concerns.
+</p>
+
+<h3>Background: how clients interact with the servers</h3>
+
+<p>
+    Unlike most other XMPP-related functionality, this 'HTTP File Upload' functionality uses an additional data path:
+    not only is the XMPP connection itself used; HTTP requests are also made. The HTTP protocol is used to upload and
+    download data. The URLs for these interactions are sent over the XMPP data channel.
+</p>
+<p>
+    In a typical scenario, a client that wants to send a file requests an 'upload slot' through XMPP. When assigned a
+    slot, its URL (as well as other metadata) is returned to the client by the server. Using this information, the client
+    will then upload the data using a HTTP PUT request. After the upload has succeeded, the client will send, over XMPP,
+    send the URL to the intended recipients of the data. Their clients will receive that URL (over XMPP) and subsequently
+    perform a HTTP GET request to download the data from the web server.
+</p>
+
+<h3>Configuration A: Using multiple service endpoint addresses</h3>
+
+<p>
+    When each of the Openfire cluster node servers is connected directly to the internet, accessible to clients through
+    their fully qualified domain name, then no configuration might be needed to make HTTP File Upload functionality
+    available on all cluster nodes, for all clients.
+</p>
+
+<h4>Option 1: Each Openfire manages a unique set of data</h4>
+
+<p>
+    <em>pro's & cons:</em> This solution requires no configuration, provides adequate scalability, but does not offer
+    much data redundancy or flexibility in network architecture.
+</p>
+
+<p>
+    Since version 1.2.0 of this plugin, the definition of a Slot is shared across all XMPP cluster nodes. This slot
+    defines the endpoint addresses to be used by the uploader, as well as the recipients of the data.
+</p>
+
+<p>
+    In the scenario described by this configuration option, each Openfire cluster node will issue slots that contain
+    endpoint URLs that are specific to the server that issued the slot. This means that the upload, as well as all
+    downloads, will be directed to URL on that same server.
+</p>
+
+<h3>Configuration B: Using one service endpoint address</h3>
+
+<p>
+    In certain environments it is undesirable or unpractical to expose more than one endpoint URL to chat clients. This
+    is frequently the case when the network architecture includes a load balancer. For this or other reasons, it might
+    have been necessary to reconfigure the 'announced' endpoints (using the configuration options defined in the
+    <a href="#configuration">Configuration paragraph</a> of this document) to use the same endpoint address for all
+    requests.
+</p>
+
+<h4>Option 2: Use only one server for file upload/download</h4>
+
+<p>
+    <em>pro's & cons:</em> This solution is typically easy to configure, but provides poor redundancy and
+    scalability.
+</p>
+
+<p>
+    In this scenario, the singular endpoint address could be mapped to exactly one Openfire cluster node. This can be
+    achieved by directly mapping the 'announced' endpoint details to the address of one of the Openfire nodes,
+    (as described in the <a href="#configuration">Configuration paragraph</a> of this document) or by configuring the
+    load balancer to 'balance' the traffic to just one of the nodes.
+</p>
+
+<h4>Option 3: Use every cluster node for file upload/download</h4>
+
+<p>
+    <em>pro's & cons:</em> More complex to configure, but provides better redundancy and scalability.
+</p>
+
+<p>
+    When a singular endpoint address is used, then this option typically involves a load balancer that distributes the
+    HTTP requests over all cluster nodes. This comes with some complexities:
+</p>
+
+<ul>
+    <li>
+        It is hard to ensure that the cluster node used by the XMPP connection of the client sharing/uploading the data
+        is the same cluster node used when performing the HTTP upload.
+    </li>
+    <li>
+        It often impossible to guaranteed that HTTP requests made by intended recipients of the uploaded data end up at
+        the same cluster node as the one that was used to upload the data to.
+    </li>
+</ul>
+
+<p>
+    When using this configuration option, it should be assured that every XMPP cluster node can fulfill HTTP upload and
+    download requests for all slots.
+</p>
+
+<p>
+    Since version 1.2.0 of this plugin, the definition of a Slot is shared across all XMPP cluster nodes. To ensure that
+    all data is accessible, all cluster nodes should use the same shared network folder for file storage. This network
+    folder should be available on the filesystem of each of your Openfire servers, using the same path name. This plugin
+    should be configured to use this directory for data storage, by using the <samp>plugin.httpfileupload.fileRepo</samp>
+    property, as described in the <a href="#configuration">Configuration paragraph</a> of this document.
+</p>
+<p>
+    Realisation of a shared network folder is likely highly specific to the operating system used for your Openfire
+    servers, and is out of scope for this document.
 </p>
 
 <h2>Attribution</h2>
