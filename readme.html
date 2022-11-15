@@ -11,6 +11,9 @@
             font-family : tahoma, verdana, arial, helvetica, sans-serif;
             font-size : 0.8em;
         }
+        TH {
+            text-align: right;
+        }
         H3 {
             font-size : 10pt;
             font-style: italic;
@@ -75,39 +78,6 @@
     automatically deployed. To upgrade to a new version, copy the new httpfileupload.jar file over the existing file.
 </p>
 
-<h2 id="configuration">Configuration</h2>
-
-<p>
-    By default, the plugin will store all uploaded files in a temporary directory that is provided by the Operating System.
-    This directory is configured to be deleted, after Openfire quits. Some Operating Systems are known to periodically
-    purge these temporary directories, which is another potential source of data loss. This plugin can be configured to
-    use any other directory for data storage, by providing the path for that directory in the property <samp>plugin.httpfileupload.fileRepo</samp>.
-    Note that the directory is expected to exist (this plugin will not attempt to create it if it is missing). Be sure
-    that the process owner of the Openfire process has enough permissions to read and write in that directory.
-</p>
-
-<p>
-    To configure the maximum allowable file size to be uploaded by clients, the property
-    <samp>plugin.httpfileupload.maxFileSize</samp> can be set to a value in bytes. If not set, a default value is used. To
-    disable the file size limitation, set this property to a value of <samp>-1</samp>.
-</p>
-
-<p>
-    To change the HTTP server protocol from the default value of "https" to "http" for example, the property <samp>plugin.httpfileupload.announcedWebProtocol</samp> can be set to new value.
-</p>
-
-<p>
-    To change the HTTP server hostname from the default value used by Openfire, the property <samp>plugin.httpfileupload.announcedWebHost</samp> can be set to new value.
-</p>
-
-<p>
-    To change the HTTP server port from the default value (7443) used by Openfire, the property <samp>plugin.httpfileupload.announcedWebPort</samp> can be set to new value.
-</p>
-
-<p>
-    To change the web context root as announced to clients from the default value (/httpfileupload) used by Openfire, the property <samp>plugin.httpfileupload.announcedWebContextRoot</samp> can be set to new value.
-</p>
-
 <h2>Using the Plugin</h2>
 
 <p>
@@ -116,6 +86,95 @@
     when Openfire is shut down. The content of this directory is purged when its total size is larger than the remaining
     disc space.
 </p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>
+    Most configuration options can be controlled by two different properties. Apart from using regular Openfire properties,
+    controlled in the Openfire admin console, XML properties can be used. XML properties are properties stored in
+    the <samp>openfire.xml</samp> file.
+</p>
+<p>
+    Regular properties are stored in the database. This will ensure that a property value is equal on all
+    servers in a cluster of Openfire servers. When it is desirable to have a property values that are <em>different</em>
+    on each server, an XML property can be used (as the content of the <samp>openfire.xml</samp> file can be different
+    on each server).
+</p>
+<p>
+    When both a regular and an XML property is defined, then the XML property value will take precedence.
+</p>
+
+<h3>Storage of data on filesystem</h3>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.fileRepo</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.fileRepo</samp></td></tr>
+</table>
+
+<p>
+    By default, the plugin will store all uploaded files in a temporary directory that is provided by the Operating System.
+    This directory is configured to be deleted, after Openfire quits. Some Operating Systems are known to periodically
+    purge these temporary directories, which is another potential source of data loss. This plugin can be configured to
+    use any other directory for data storage, by providing the path for that directory in either property listed above.
+    Note that the directory is expected to exist (this plugin will not attempt to create it if it is missing). Be sure
+    that the process owner of the Openfire process has enough permissions to read and write in that directory.
+</p>
+
+<h3>Maximum file size</h3>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.maxFileSize</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.maxFileSize</samp></td></tr>
+</table>
+
+<p>
+    To configure the maximum allowable file size to be uploaded by clients, the property defined above can be set to a
+    value in bytes. If not set, a default value is used. To disable the file size limitation, set a property to a value
+    of <samp>-1</samp>.
+</p>
+
+<h3>Announced web endpoint</h3>
+
+<p>
+    The plugin will send URLs to the client that are to be used to upload or download data. To following properties can
+    be used to control the composition of the URLs that are generated.
+</p>
+
+<p>
+    To change the HTTP server protocol from the default value of "https" to "http" for example, use these properties:
+</p>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebProtocol</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.announcedWebProtocol</samp></td></tr>
+</table>
+
+<p>
+    To change the HTTP server hostname from the default value used by Openfire, use these properties:
+</p>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebHost</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.announcedWebHost</samp></td></tr>
+</table>
+
+<p>
+    To change the HTTP server port from the default value (7443) used by Openfire, use these properties</p>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebPort</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.announcedWebPort</samp></td></tr>
+</table>
+
+<p>
+    To change the web context root as announced to clients from the default value (<samp>/httpfileupload</samp>) used by
+    use these properties:
+</p>
+
+<table>
+    <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebContextRoot</samp></td></tr>
+    <tr><th>Property</th> <td><samp>plugin.httpfileupload.announcedWebContextRoot</samp></td></tr>
+</table>
 
 <h2>When using in an Openfire cluster</h2>
 
