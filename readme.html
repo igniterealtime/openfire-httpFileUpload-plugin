@@ -1,6 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 
-<html>
+<html lang="en">
 <head>
     <title>HTTP File Upload Plugin Readme</title>
     <style type="text/css">
@@ -208,6 +208,11 @@
 
 <h4>Option 1: Each Openfire manages a unique set of data</h4>
 
+<figure>
+    <img src="doc-diagram-option-1.png" alt="Diagram illustrating option 1: each Openfire uses it's own data store."/>
+    <figcaption>Diagram illustrating option 1: each Openfire uses it's own data store.</figcaption>
+</figure>
+
 <p>
     <em>pros & cons:</em> This solution requires no configuration, provides adequate scalability, but does not offer
     much data redundancy or flexibility in network architecture.
@@ -236,6 +241,11 @@
 
 <h4>Option 2: Use only one server for file upload/download</h4>
 
+<figure>
+    <img src="doc-diagram-option-2.png" alt="Diagram illustrating option 2: One Openfire used for all file storage."/>
+    <figcaption>Diagram illustrating option 2: One Openfire used for all file storage.</figcaption>
+</figure>
+
 <p>
     <em>pros & cons:</em> This solution is typically easy to configure, but provides poor redundancy and
     scalability.
@@ -249,6 +259,11 @@
 </p>
 
 <h4>Option 3: Use every cluster node for file upload/download</h4>
+
+<figure>
+    <img src="doc-diagram-option-3.png" alt="Diagram illustrating option 3: Cluster uses centralized file storage."/>
+    <figcaption>Diagram illustrating option 3: Cluster uses centralized file storage.</figcaption>
+</figure>
 
 <p>
     <em>pros & cons:</em> More complex to configure, but provides better redundancy and scalability.
@@ -291,7 +306,8 @@
 <p>
     Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from
     <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
-    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>.<br/>
+    Diagrams created on <a href="https://diagrams.net" title="diagrams.net/draw.io">diagrams.net/draw.io</a>.
 </p>
 </body>
 </html>
