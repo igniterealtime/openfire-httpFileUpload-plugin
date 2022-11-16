@@ -356,12 +356,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
             SlotManager.getInstance().initialize(new OpenfireSlotProvider());
 
-            SlotManager.getInstance().setWebProtocol(ANNOUNCED_WEB_PROTOCOL.getValue());
-            SlotManager.getInstance().setWebHost(ANNOUNCED_WEB_HOST.getValue());
-            SlotManager.getInstance().setWebPort(ANNOUNCED_WEB_PORT.getValue());
-            SlotManager.getInstance().setWebContextRoot(ANNOUNCED_WEB_CONTEXT_ROOT.getValue());
-            SlotManager.getInstance().setMaxFileSize(MAX_FILE_SIZE.getValue());
-
             applyWebProtocolConfiguration();
             applyWebHostConfiguration();
             applyWebPortConfiguration();
