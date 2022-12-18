@@ -18,7 +18,7 @@ jobs:
         name: Compute needed variables
         run: |
           set -x
-          id=$(echo ${{ github.repository }} | cut -d- -f2)
+          id=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
           echo "::set-output name=id::$id"
           echo "id is '$id'"
           tag=$(echo ${{ github.ref }} | cut -d '/' -f3)
