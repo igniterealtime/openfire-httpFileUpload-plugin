@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022 Ignite Realtime Foundation. All rights reserved.
+ * Copyright (c) 2017-2023 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.apache.tomcat.SimpleInstanceManager;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.jivesoftware.admin.AuthCheckFilter;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.component.InternalComponentManager;
 import org.jivesoftware.openfire.container.Plugin;
@@ -145,12 +144,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
 
     private Component component;
     private WebAppContext context;
-
-    private final String[] publicResources = new String[]
-        {
-            "httpfileupload/*",
-            "httpFileUpload/*"
-        };
 
     /**
      * Returns the scheme that is used in URLs advertised for file uploads/downloads.
@@ -396,11 +389,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
             HttpBindManager.getInstance().addJettyHandler( context );
 
             InternalComponentManager.getInstance().addComponent( "httpfileupload", component );
-
-            for ( final String publicResource : publicResources )
-            {
-                AuthCheckFilter.addExclude( publicResource );
-            }
         }
         catch ( Exception e )
         {
@@ -412,11 +400,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
     @Override
     public void destroyPlugin()
     {
-        for ( final String publicResource : publicResources )
-        {
-            AuthCheckFilter.removeExclude( publicResource );
-        }
-
         if ( context != null )
         {
             HttpBindManager.getInstance().removeJettyHandler( context );
