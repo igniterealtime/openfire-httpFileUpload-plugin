@@ -159,7 +159,8 @@
 </table>
 
 <p>
-    To change the HTTP server port from the default value (7443) used by Openfire, use these properties</p>
+    To change the HTTP server port from the default value (7443) used by Openfire, use these properties
+</p>
 
 <table>
     <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebPort</samp></td></tr>
@@ -175,6 +176,72 @@
     <tr><th>XML property</th> <td><samp>plugin.httpfileupload.serverspecific.announcedWebContextRoot</samp></td></tr>
     <tr><th>System Property</th> <td><samp>plugin.httpfileupload.announcedWebContextRoot</samp></td></tr>
 </table>
+
+<h3>ClamAV Malware Scanner Integration</h3>
+
+<p>
+    The plugin can be integrated with an external malware scanner (<a href="#malware-scanning">read more below</a>).
+    These properties are used for that.
+</p>
+
+<p>
+    To enable or disable the integration, use this property. When the ClamAV daemon cannot be reached while the feature
+    is enabled, all file uploads will be rejected.
+</p>
+
+<table>
+    <tr><th>System Property</th> <td><samp>plugin.httpfileupload.clamavEnabled</samp></td></tr>
+</table>
+
+<p>
+    Controls the host that is used to integrate with an external (third-party) ClamAV malware scanner daemon.
+</p>
+
+<table>
+    <tr><th>System Property</th> <td><samp>plugin.httpfileupload.clamavHost</samp></td></tr>
+</table>
+
+<p>
+    Controls the port that is used to integrate with an external (third-party) ClamAV malware scanner daemon.
+</p>
+
+<table>
+    <tr><th>System Property</th> <td><samp>plugin.httpfileupload.clamavPort</samp></td></tr>
+</table>
+
+<p>
+    Defines the duration (in milliseconds) after which Openfire giving up trying to establish a TCP connection to the
+    ClamAV scanner daemon.
+</p>
+
+<table>
+    <tr><th>System Property</th> <td><samp>plugin.httpfileupload.clamavConnectionTimeout</samp></td></tr>
+</table>
+
+<h2 id="malware-scanning">Scanning for Malware</h2>
+
+<p>
+    To facilitate virus scanning, you can configure the application to use ClamAV. ClamAV is a third-party, open source
+    (GPLv2) anti-virus toolkit, available at <a href="https://www.clamav.net/">www.clamav.net</a>
+</p>
+<p>
+    To configure this application to use ClamAV, install, configure and run clamav-daemon, the scanner daemon of ClamAV.
+    Configure the daemon in such a way that Openfire can access it via TCP.
+</p>
+<p>
+    Note: ClamAV is configured with a maximum file size. Ensure that this is at least as big as the
+    <samp>maxFileSize</samp> that is provided as an argument to the HTTP File Upload Plugin.
+</p>
+<p>
+    Then, start the HTTP File Upload Plugin application with the <samp>clamavHost</samp> and <samp>clamavPort</samp>
+    arguments. When these are provided, the application will supply each file that is being uploaded to the ClamAV
+    daemon for scanning. A file upload will fail when the ClamAV daemon could not be reached, or, obviously, when it
+    detects malware.
+</p>
+<p>
+    While malware scanning can offer some protection against distributing unwanted content, it has limitations. Particularly
+    when the uploaded data is encrypted, the scanner is unlikely able to detect any malware in it.
+</p>
 
 <h2>When using in an Openfire cluster</h2>
 
@@ -193,9 +260,9 @@
 <p>
     In a typical scenario, a client that wants to send a file requests an 'upload slot' through XMPP. When assigned a
     slot, its URL (as well as other metadata) is returned to the client by the server. Using this information, the client
-    will then upload the data using a HTTP PUT request. After the upload has succeeded, the client will send, over XMPP,
+    will then upload the data using an HTTP PUT request. After the upload has succeeded, the client will send, over XMPP,
     send the URL to the intended recipients of the data. Their clients will receive that URL (over XMPP) and subsequently
-    perform a HTTP GET request to download the data from the web server.
+    perform an HTTP GET request to download the data from the web server.
 </p>
 
 <h3>Configuration A: Using multiple service endpoint addresses</h3>
@@ -280,8 +347,8 @@
         is the same cluster node used when performing the HTTP upload.
     </li>
     <li>
-        It often impossible to guaranteed that HTTP requests made by intended recipients of the uploaded data end up at
-        the same cluster node as the one that was used to upload the data to.
+        It is often impossible to guaranteed that HTTP requests made by intended recipients of the uploaded data end up
+        at the same cluster node as the one that was used to upload the data to.
     </li>
 </ul>
 
