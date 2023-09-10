@@ -7,4 +7,5 @@
     <version>${project.version}</version>
     <date>2023-05-23</date>
     <minServerVersion>4.7.0</minServerVersion>
+    <minJavaVersion>1.8</minJavaVersion>
 </plugin>

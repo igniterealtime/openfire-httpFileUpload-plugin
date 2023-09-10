@@ -15,10 +15,8 @@
  */
 package org.igniterealtime.openfire.plugins.httpfileupload;
 
-import nl.goodbytes.xmpp.xep0363.Component;
-import nl.goodbytes.xmpp.xep0363.Repository;
-import nl.goodbytes.xmpp.xep0363.RepositoryManager;
-import nl.goodbytes.xmpp.xep0363.SlotManager;
+import nl.goodbytes.xmpp.xep0363.*;
+import nl.goodbytes.xmpp.xep0363.clamav.ClamavMalwareScanner;
 import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
 import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
 import org.apache.tomcat.InstanceManager;
@@ -39,9 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -140,6 +141,53 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         .setKey("plugin.httpfileupload.fileRepo")
         .setDynamic(false)
         .setPlugin("HTTP File Upload")
+        .build();
+
+
+    /**
+     * Controls if integration with an external (third-party) ClamAV malware scanner is enabled.
+     */
+    private static final SystemProperty<Boolean> CLAMAV_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("plugin.httpfileupload.clamavEnabled")
+        .setDefaultValue(false)
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> applyClamAvConfiguration())
+        .build();
+
+    /**
+     * Controls the host that is used to integrate with an external (third-party) ClamAV malware scanner daemon.
+     */
+    private static final SystemProperty<String> CLAMAV_HOST = SystemProperty.Builder.ofType(String.class)
+        .setKey("plugin.httpfileupload.clamavHost")
+        .setDefaultValue("127.0.0.1")
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> applyClamAvConfiguration())
+        .build();
+
+    /**
+     * Controls the port that is used to integrate with an external (third-party) ClamAV malware scanner daemon.
+     */
+    private static final SystemProperty<Integer> CLAMAV_PORT = SystemProperty.Builder.ofType(Integer.class)
+        .setKey("plugin.httpfileupload.clamavPort")
+        .setDefaultValue(3310)
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> applyClamAvConfiguration())
+        .build();
+
+    /**
+     * Controls the connection timeout that is used when integrating with an external (third-party) ClamAV malware
+     * scanner daemon.
+     */
+    private static final SystemProperty<Duration> CLAMAV_CONNECTION_TIMEOUT = SystemProperty.Builder.ofType(Duration.class)
+        .setKey("plugin.httpfileupload.clamavConnectionTimeout")
+        .setDefaultValue(Duration.ofSeconds(3))
+        .setChronoUnit(ChronoUnit.MILLIS)
+        .setDynamic(true)
+        .setPlugin("HTTP File Upload")
+        .addListener(newValue -> applyClamAvConfiguration())
         .build();
 
     private Component component;
@@ -340,6 +388,21 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         }
     }
 
+    public static void applyClamAvConfiguration()
+    {
+        final MalwareScannerManager manager = MalwareScannerManager.getInstance();
+        manager.destroy();
+
+        if (CLAMAV_ENABLED.getValue()) {
+            final MalwareScanner clamAv = new ClamavMalwareScanner(CLAMAV_HOST.getValue(), CLAMAV_PORT.getValue(), CLAMAV_CONNECTION_TIMEOUT.getValue());
+            try {
+                MalwareScannerManager.getInstance().initialize(clamAv);
+            } catch (IOException e) {
+                Log.warn("Unable to initialize integration with the ClamAV malware scanner daemon (at {}:{}).", CLAMAV_HOST.getValue(), CLAMAV_PORT.getValue(), e);
+            }
+        }
+    }
+
     @Override
     public void initializePlugin( PluginManager manager, File pluginDirectory )
     {
@@ -354,6 +417,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
             applyWebPortConfiguration();
             applyWebContextRootConfiguration();
             applyMaxFileSizeConfiguration();
+            applyClamAvConfiguration();
 
             Repository repository;
             final String fileRepo = getFileRepoFromProperties();
