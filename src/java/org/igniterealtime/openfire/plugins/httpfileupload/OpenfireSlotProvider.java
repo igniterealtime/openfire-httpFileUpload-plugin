@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022 Ignite Realtime Foundation. All rights reserved.
+ * Copyright (c) 2017-2024 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,11 @@ import java.util.concurrent.locks.Lock;
 
 public class OpenfireSlotProvider implements SlotProvider
 {
-    private final Cache<SecureUniqueId, Slot> slotsCache;
+    // Use string-representation of SecureUniqueId as cache key, as the interface cannot be processed by JAXB.
+    private final Cache<String, Slot> slotsCache;
 
     public OpenfireSlotProvider() {
-        slotsCache = CacheFactory.createCache("HTTP File Upload Slots");
+        slotsCache = CacheFactory.createSerializingCache("HTTP File Upload Slots", String.class, Slot.class);
 
         // Unless there is specific configuration for this cache, default the max lifetime of entries in this cache to something that's fairly short.
         if (null == JiveGlobals.getProperty("cache." + slotsCache.getName().replaceAll(" ", "") + ".maxLifetime")) {
@@ -43,10 +44,10 @@ public class OpenfireSlotProvider implements SlotProvider
     @Override
     public void create(@Nonnull final Slot slot)
     {
-        final Lock lock = slotsCache.getLock(slot.getUuid());
+        final Lock lock = slotsCache.getLock(slot.getUuid().toString());
         lock.lock();
         try {
-            slotsCache.put( slot.getUuid(), slot );
+            slotsCache.put( slot.getUuid().toString(), slot );
         } finally {
             lock.unlock();
         }
@@ -56,10 +57,10 @@ public class OpenfireSlotProvider implements SlotProvider
     @Override
     public Slot consume(@Nonnull final SecureUniqueId slotId)
     {
-        final Lock lock = slotsCache.getLock(slotId);
+        final Lock lock = slotsCache.getLock(slotId.toString());
         lock.lock();
         try {
-            return slotsCache.remove(slotId);
+            return slotsCache.remove(slotId.toString());
         } finally {
             lock.unlock();
         }
