@@ -8,4 +8,18 @@
     <date>2024-01-19</date>
     <minServerVersion>4.7.0</minServerVersion>
     <minJavaVersion>1.8</minJavaVersion>
+    <csrfProtectionEnabled>true</csrfProtectionEnabled>
+    
+    <adminconsole>
+      <tab id="tab-server">
+        <sidebar id="sidebar-server-settings">
+          <!-- Note that the item id here is the used as the page id in the jsp-->
+          <item  id="httpfileupload-settings" name="${httpfileupload.sidebar.settings}"
+            url="httpfileupload-settings.jsp"
+            description="${httpfileupload.sidebar.settings.desc}">
+          </item>
+        </sidebar>
+      </tab>
+    </adminconsole>
+    
 </plugin>
