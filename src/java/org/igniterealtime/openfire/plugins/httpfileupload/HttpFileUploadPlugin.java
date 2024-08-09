@@ -15,10 +15,20 @@
  */
 package org.igniterealtime.openfire.plugins.httpfileupload;
 
-import nl.goodbytes.xmpp.xep0363.*;
-import nl.goodbytes.xmpp.xep0363.clamav.ClamavMalwareScanner;
-import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
-import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.SimpleInstanceManager;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
@@ -36,17 +46,15 @@ import org.jivesoftware.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import nl.goodbytes.xmpp.xep0363.Component;
+import nl.goodbytes.xmpp.xep0363.MalwareScanner;
+import nl.goodbytes.xmpp.xep0363.MalwareScannerManager;
+import nl.goodbytes.xmpp.xep0363.Repository;
+import nl.goodbytes.xmpp.xep0363.RepositoryManager;
+import nl.goodbytes.xmpp.xep0363.SlotManager;
+import nl.goodbytes.xmpp.xep0363.clamav.ClamavMalwareScanner;
+import nl.goodbytes.xmpp.xep0363.repository.DirectoryRepository;
+import nl.goodbytes.xmpp.xep0363.repository.TempDirectoryRepository;
 
 /**
  * Created by guus on 18-11-17.
@@ -62,7 +70,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<String> ANNOUNCED_WEB_PROTOCOL = SystemProperty.Builder.ofType(String.class)
+    public static final SystemProperty<String> ANNOUNCED_WEB_PROTOCOL = SystemProperty.Builder.ofType(String.class)
         .setKey("plugin.httpfileupload.announcedWebProtocol")
         .setDefaultValue("https")
         .setDynamic(true)
@@ -77,7 +85,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<String> ANNOUNCED_WEB_HOST = SystemProperty.Builder.ofType(String.class)
+    public static final SystemProperty<String> ANNOUNCED_WEB_HOST = SystemProperty.Builder.ofType(String.class)
         .setKey("plugin.httpfileupload.announcedWebHost")
         .setDefaultValue(XMPPServer.getInstance().getServerInfo().getHostname())
         .setDynamic(true)
@@ -92,7 +100,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<Integer> ANNOUNCED_WEB_PORT = SystemProperty.Builder.ofType(Integer.class)
+    public static final SystemProperty<Integer> ANNOUNCED_WEB_PORT = SystemProperty.Builder.ofType(Integer.class)
         .setKey("plugin.httpfileupload.announcedWebPort")
         .setDefaultValue(HttpBindManager.HTTP_BIND_SECURE_PORT.getValue())
         .setDynamic(true)
@@ -107,7 +115,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<String> ANNOUNCED_WEB_CONTEXT_ROOT = SystemProperty.Builder.ofType(String.class)
+    public static final SystemProperty<String> ANNOUNCED_WEB_CONTEXT_ROOT = SystemProperty.Builder.ofType(String.class)
         .setKey("plugin.httpfileupload.announcedWebContextRoot")
         .setDefaultValue("/httpfileupload")
         .setDynamic(false)
@@ -121,7 +129,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<Long> MAX_FILE_SIZE = SystemProperty.Builder.ofType(Long.class)
+    public static final SystemProperty<Long> MAX_FILE_SIZE = SystemProperty.Builder.ofType(Long.class)
         .setKey("plugin.httpfileupload.maxFileSize")
         .setDefaultValue(SlotManager.DEFAULT_MAX_FILE_SIZE)
         .setDynamic(true)
@@ -137,7 +145,7 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
      * Unlike this (database-based) property, the XML property can be assigned different values on each server, which
      * can come in handy in an Openfire cluster.
      */
-    private static final SystemProperty<String> FILE_REPO = SystemProperty.Builder.ofType(String.class)
+    public static final SystemProperty<String> FILE_REPO = SystemProperty.Builder.ofType(String.class)
         .setKey("plugin.httpfileupload.fileRepo")
         .setDynamic(false)
         .setPlugin("HTTP File Upload")
@@ -477,6 +485,39 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         }
 
         PropertyEventDispatcher.removeListener(this);
+    }
+    
+    public void check(String fileRepo ) throws IOException {
+      try {
+        final Path path = Paths.get( fileRepo );
+
+        if ( !path.toFile().exists() ) {
+          throw new IOException("Path '" + path + "' does not exists");
+        }
+        if ( !path.toFile().isDirectory() ) {
+           throw new IOException("Path '" + path + "' not a directory");
+        }
+        if ( !path.toFile().canWrite() ) {
+          throw new IOException("Path '" + path + "' not writable");
+        }
+
+      } catch ( InvalidPathException e ) {
+        throw new IOException( "Invalid value '" + fileRepo + "': " + e.getMessage() );
+      }
+    }
+    
+    public String getAnnouncedAddress() throws URISyntaxException {
+      
+        final URI uri = new URI(
+            getWebProtocolFromProperties(),
+            null, // userinfo
+            getWebHostFromProperties(),
+            getWebPortFromProperties(),
+            getWebContextRootFromProperties(),
+            null, // query
+            null // fragment
+        );
+        return uri.toASCIIString();
     }
 
     @Override
