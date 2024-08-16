@@ -1,3 +1,4 @@
+<%@page import="org.jivesoftware.openfire.cluster.ClusterManager"%>
 <%@page import="java.net.URI"%>
 <%@page import="java.net.URISyntaxException"%>
 <%@page import="java.io.IOException"%>
@@ -153,29 +154,25 @@
 	     </p>
 	     
 	     <% 
-	     if ( HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue().equals("https") ) {
-	       
-         final String securedAddress = "https://" + XMPPServer.getInstance().getServerInfo().getHostname() + ":" + HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() + "/httpfileupload";
-      
-         if ( !announcedAddress.equals(securedAddress)) { %>
-            <div class="warning">
-				      <fmt:message key="httpfileupload.settings.logs.link.secure">
-				          <fmt:param value="<%= securedAddress %>"/>
-				      </fmt:message>
-            </div>
-      <%  }
-        } else {
-	       
-        final String unsecuredAddress = "http://" + XMPPServer.getInstance().getServerInfo().getHostname() + ":" + HttpBindManager.HTTP_BIND_PORT.getValue() + "/httpfileupload";
-     
-        if ( !announcedAddress.equals(unsecuredAddress) ) { %>
-            <div class="warning">
-      	     <fmt:message key="httpfileupload.settings.logs.link.unsecure">
-	            <fmt:param value="<%= unsecuredAddress %>"/>
-	           </fmt:message>
-	          </div>
-       <%  }	     
-        }
+       final boolean cluster = ClusterManager.isClusteringStarted() || ClusterManager.isClusteringStarting();
+	     final boolean secure = HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue().equals("https");
+
+       final String calculatedAddress = 
+           ( secure ? "https://" : "http://" )
+           + ( cluster ? XMPPServer.getInstance().getServerInfo().getXMPPDomain() : XMPPServer.getInstance().getServerInfo().getHostname() )
+           + ":" 
+           + ( secure ? HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() : HttpBindManager.HTTP_BIND_PORT.getValue() )  
+           + "/httpfileupload";
+
+       String message = (cluster ? "httpfileupload.settings.logs.link.cluster" : (secure ? "httpfileupload.settings.logs.link.secure" : "httpfileupload.settings.logs.link.unsecure" ));
+
+       if ( !announcedAddress.equals(calculatedAddress)) { %>
+	            <div class="warning">
+					      <fmt:message key="<%=message %>">
+					          <fmt:param value="<%= calculatedAddress %>"/>
+					      </fmt:message>
+	            </div>
+	      <%  }
 	     %>
 	     
 	     <p><fmt:message key="httpfileupload.settings.logs.redirect" >
@@ -238,9 +235,10 @@
 	               <td>
 	                   <label class="jive-label"><fmt:message key="httpfileupload.settings.fileRepo.title"/>:</label>
 	                   <br>
-	                   <fmt:message key="system_property.plugin.httpfileupload.fileRepo"/></td>
+	                   <fmt:message key="system_property.plugin.httpfileupload.fileRepo"/><br>
+                     <fmt:message key="httpfileupload.settings.fileRepo.cluster.desc"/></td>
 	               <td>
-	                   <input type="text" name="fileRepo" size="20" maxlength="250" value="<%= fileRepo %>" />
+	                   <input type="text" name="fileRepo" size="30" maxlength="250" value="<%= fileRepo %>" />
 	               </td>
 	               <td></td>
               </tr>
