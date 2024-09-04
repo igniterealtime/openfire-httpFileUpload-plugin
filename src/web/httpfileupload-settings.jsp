@@ -200,62 +200,62 @@
             </tr>
             <tr> <!-- plugin.httpfileupload.announcedProtocol’  -->
                <td>
-                   <label class="jive-label"><fmt:message key="httpfileupload.settings.announcedProtocol.title"/>:</label>
+                   <label class="jive-label" for="announcedProtocol"><fmt:message key="httpfileupload.settings.announcedProtocol.title"/>:</label>
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebProtocol"/></td>
                <td>
-                   <input type="text" name="announcedProtocol" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebProtocol)}" />
+                   <input type="text" name="announcedProtocol" id="announcedProtocol" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebProtocol)}" />
                </td>
                <td></td>
              </tr>
             <tr> <!-- plugin.httpfileupload.announcedWebHost’  -->
                <td>
-                   <label class="jive-label"><fmt:message key="httpfileupload.settings.announcedWebHost.title"/>:</label>
+                   <label class="jive-label" for="announcedWebHost"><fmt:message key="httpfileupload.settings.announcedWebHost.title"/>:</label>
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebHost"/></td>
                <td>
-                   <input type="text" name="announcedWebHost" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedWebHost)}" />
+                   <input type="text" name="announcedWebHost" id="announcedWebHost" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedWebHost)}" />
                </td>
                <td></td>
              </tr>
             <tr> <!-- plugin.httpfileupload.announcedPort’  -->
                <td>
-                   <label class="jive-label"><fmt:message key="httpfileupload.settings.announcedPort.title"/>:</label>
+                   <label class="jive-label" for="announcedPort"><fmt:message key="httpfileupload.settings.announcedPort.title"/>:</label>
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebPort"/></td>
                <td>
-                   <input type="number" min="1" max="65535" name="announcedPort" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebPort)}" />
+                   <input type="number" min="1" max="65535" name="announcedPort" id="announcedPort" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebPort)}" />
                </td>
                <td></td>
              </tr>
             <tr> <!-- plugin.httpfileupload.announcedContextRoot’  -->
                <td>
-                   <label class="jive-label"><fmt:message key="httpfileupload.settings.announcedContextRoot.title"/>:</label>
+                   <label class="jive-label" for="announcedContextRoot"><fmt:message key="httpfileupload.settings.announcedContextRoot.title"/>:</label>
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebContextRoot"/></td>
                <td>
-                   <input type="text" name="announcedContextRoot" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedContextRoot)}" />
+                   <input type="text" name="announcedContextRoot" id="announcedContextRoot" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedContextRoot)}" />
                </td>
                <td></td>
 	           </tr>
 	           <tr> <!-- plugin.httpfileupload.fileRepo’  -->
 	               <td>
-	                   <label class="jive-label"><fmt:message key="httpfileupload.settings.fileRepo.title"/>:</label>
+	                   <label class="jive-label" for="fileRepo"><fmt:message key="httpfileupload.settings.fileRepo.title"/>:</label>
 	                   <br>
 	                   <fmt:message key="system_property.plugin.httpfileupload.fileRepo"/><br>
                      <fmt:message key="httpfileupload.settings.fileRepo.cluster.desc"/></td>
 	               <td>
-	                   <input type="text" name="fileRepo" size="30" maxlength="250" value="${admin:escapeHTMLTags(fileRepo)}" />
+	                   <input type="text" name="fileRepo" id="fileRepo" size="30" maxlength="250" value="${admin:escapeHTMLTags(fileRepo)}" />
 	               </td>
 	               <td></td>
               </tr>
 	            <tr> <!-- plugin.httpfileupload.maxFileSize’  -->
 	               <td>
-	                   <label class="jive-label"><fmt:message key="httpfileupload.settings.maxFileSize.title"/>:</label>
+	                   <label class="jive-label" for="maxFileSize"><fmt:message key="httpfileupload.settings.maxFileSize.title"/>:</label>
 	                   <br>
 	                   <fmt:message key="system_property.plugin.httpfileupload.maxFileSize"/></td>
 	               <td>
-	                   <input type="number" min="0" name="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
+	                   <input type="number" min="0" name="maxFileSize" id="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
 	               </td>
 	               <td></td>
 	           </tr>
