@@ -8,16 +8,14 @@
 <%@ page import="org.jivesoftware.openfire.http.HttpBindManager" %>
 <%@ page import="org.jivesoftware.util.ParamUtils" %>
 <%@ page import="org.jivesoftware.openfire.XMPPServer" %>
-<%@ page import="org.jivesoftware.util.StringUtils" %>
-<%@ page import="org.jivesoftware.util.CookieUtils" %>
 <%@ page import="org.jivesoftware.util.ParamUtils" %>
-<%@ page import="java.time.Duration" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Optional" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="admin" prefix="admin" %>
 <jsp:useBean id="webManager" class="org.jivesoftware.util.WebManager" />
 <% webManager.init(request, response, session, application, out ); %>
 <%
@@ -116,21 +114,44 @@
 <%
         }
     }
+
+    final boolean isCluster = ClusterManager.isClusteringStarted() || ClusterManager.isClusteringStarting();
+    final boolean isEncrypted = HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue().equals("https");
+
+    final String calculatedAddress =
+        ( isEncrypted ? "https://" : "http://" )
+            + ( isEncrypted ? XMPPServer.getInstance().getServerInfo().getXMPPDomain() : XMPPServer.getInstance().getServerInfo().getHostname() )
+            + ":"
+            + ( isEncrypted ? HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() : HttpBindManager.HTTP_BIND_PORT.getValue() )
+            + "/httpfileupload";
+
+    request.setAttribute("errors", errors);
+    request.setAttribute("errorMessage", errorMessage);
+    request.setAttribute("isHttpBindEnabled", HttpBindManager.getInstance().isHttpBindEnabled());
+    request.setAttribute("announcedAddress", announcedAddress);
+    request.setAttribute("calculatedAddress", calculatedAddress);
+    request.setAttribute("isCluster", isCluster);
+    request.setAttribute("isEncrypted", isEncrypted);
+    request.setAttribute("fileRepo", fileRepo);
+    request.setAttribute("announcedWebProtocol", HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue());
+    request.setAttribute("announcedWebHost", HttpFileUploadPlugin.ANNOUNCED_WEB_HOST.getValue());
+    request.setAttribute("announcedWebPort", HttpFileUploadPlugin.ANNOUNCED_WEB_PORT.getValue());
+    request.setAttribute("announcedContextRoot", HttpFileUploadPlugin.ANNOUNCED_WEB_CONTEXT_ROOT.getValue());
+    request.setAttribute("maxFileSize", HttpFileUploadPlugin.MAX_FILE_SIZE.getValue());
 %>
 
-<% if (errors.size() > 0) { %>
-<div class="error">
-    <%= errorMessage%>
-</div>
-<br/>
-<% } %>
+<c:if test="${not empty errors}">
+    <div class="error">
+        <c:out value="${errorMessage}"/>
+    </div>
+    <br/>
+</c:if>
 
 <p>
     <fmt:message key="httpfileupload.settings.description"/>
 </p>
 
-    <% if ( ! HttpBindManager.getInstance().isHttpBindEnabled() ) { %>
-
+    <c:if test="${not isHttpBindEnabled}">
     <div class="jive-warning">
         <table>
             <tbody>
@@ -144,37 +165,23 @@
             </tbody>
         </table>
     </div><br>
-    <%  } %>
+    </c:if>
      <div class="jive-contentBoxHeader"><fmt:message key="httpfileupload.settings.logs.title"/></div>
      <div class="jive-contentBox">
 	     <p>
 	     <fmt:message key="httpfileupload.settings.logs.link.announced">
-	         <fmt:param value="<%= announcedAddress %>"/>
+             <fmt:param><c:out value="${announcedAddress}"/></fmt:param>
 	     </fmt:message>
 	     </p>
-	     
-	     <% 
-       final boolean cluster = ClusterManager.isClusteringStarted() || ClusterManager.isClusteringStarting();
-	     final boolean secure = HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue().equals("https");
 
-       final String calculatedAddress = 
-           ( secure ? "https://" : "http://" )
-           + ( cluster ? XMPPServer.getInstance().getServerInfo().getXMPPDomain() : XMPPServer.getInstance().getServerInfo().getHostname() )
-           + ":" 
-           + ( secure ? HttpBindManager.HTTP_BIND_SECURE_PORT.getValue() : HttpBindManager.HTTP_BIND_PORT.getValue() )  
-           + "/httpfileupload";
+         <c:if test="${not announcedAddress eq calculatedAddress}">
+            <div class="warning">
+                 <fmt:message key="${isCluster ? 'httpfileupload.settings.logs.link.cluster' : (isEncrypted ? 'httpfileupload.settings.logs.link.secure' : 'httpfileupload.settings.logs.link.unsecure' )}">
+                     <fmt:param><c:out value="${calculatedAddress}"/></fmt:param>
+                 </fmt:message>
+             </div>
+         </c:if>
 
-       String message = (cluster ? "httpfileupload.settings.logs.link.cluster" : (secure ? "httpfileupload.settings.logs.link.secure" : "httpfileupload.settings.logs.link.unsecure" ));
-
-       if ( !announcedAddress.equals(calculatedAddress)) { %>
-	            <div class="warning">
-					      <fmt:message key="<%=message %>">
-					          <fmt:param value="<%= calculatedAddress %>"/>
-					      </fmt:message>
-	            </div>
-	      <%  }
-	     %>
-	     
 	     <p><fmt:message key="httpfileupload.settings.logs.redirect" >
 	           <fmt:param value="<a href=\"../../http-bind.jsp\">"/>
 	           <fmt:param value="</a>"/>
@@ -183,7 +190,7 @@
 
   <form action="httpfileupload-settings.jsp" method="post">
     <input type="hidden" name="csrf" value="${csrf}">
-            
+
     <div class="jive-contentBoxHeader"><fmt:message key="httpfileupload.settings.message.metadata.title"/></div>
     <div class="jive-contentBox">
       <table>
@@ -197,7 +204,7 @@
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebProtocol"/></td>
                <td>
-                   <input type="text" name="announcedProtocol" size="10" maxlength="10" value="<%= HttpFileUploadPlugin.ANNOUNCED_WEB_PROTOCOL.getValue() %>" />
+                   <input type="text" name="announcedProtocol" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebProtocol)}" />
                </td>
                <td></td>
              </tr>
@@ -207,7 +214,7 @@
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebHost"/></td>
                <td>
-                   <input type="text" name="announcedWebHost" size="20" maxlength="200" value="<%= HttpFileUploadPlugin.ANNOUNCED_WEB_HOST.getValue() %>" />
+                   <input type="text" name="announcedWebHost" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedWebHost)}" />
                </td>
                <td></td>
              </tr>
@@ -217,7 +224,7 @@
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebPort"/></td>
                <td>
-                   <input type="text" name="announcedPort" size="10" maxlength="10" value="<%= HttpFileUploadPlugin.ANNOUNCED_WEB_PORT.getValue() %>" />
+                   <input type="text" name="announcedPort" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebPort)}" />
                </td>
                <td></td>
              </tr>
@@ -227,7 +234,7 @@
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebContextRoot"/></td>
                <td>
-                   <input type="text" name="announcedContextRoot" size="20" maxlength="200" value="<%= HttpFileUploadPlugin.ANNOUNCED_WEB_CONTEXT_ROOT.getValue() %>" />
+                   <input type="text" name="announcedContextRoot" size="20" maxlength="200" value="${admin:escapeHTMLTags(announcedContextRoot)}" />
                </td>
                <td></td>
 	           </tr>
@@ -238,7 +245,7 @@
 	                   <fmt:message key="system_property.plugin.httpfileupload.fileRepo"/><br>
                      <fmt:message key="httpfileupload.settings.fileRepo.cluster.desc"/></td>
 	               <td>
-	                   <input type="text" name="fileRepo" size="30" maxlength="250" value="<%= fileRepo %>" />
+	                   <input type="text" name="fileRepo" size="30" maxlength="250" value="${admin:escapeHTMLTags(fileRepo)}" />
 	               </td>
 	               <td></td>
               </tr>
@@ -248,7 +255,7 @@
 	                   <br>
 	                   <fmt:message key="system_property.plugin.httpfileupload.maxFileSize"/></td>
 	               <td>
-	                   <input type="text" name="maxFileSize" size="10" maxlength="10" value="<%= HttpFileUploadPlugin.MAX_FILE_SIZE.getValue() %>" />
+	                   <input type="text" name="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
 	               </td>
 	               <td></td>
 	           </tr>
