@@ -141,10 +141,9 @@
 %>
 
 <c:if test="${not empty errors}">
-    <div class="error">
+    <admin:infobox type="error">
         <c:out value="${errorMessage}"/>
-    </div>
-    <br/>
+    </admin:infobox>
 </c:if>
 
 <p>
@@ -152,22 +151,16 @@
 </p>
 
     <c:if test="${not isHttpBindEnabled}">
-    <div class="jive-warning">
-        <table>
-            <tbody>
-            <tr><td class="jive-icon"><img src="images/warning-16x16.gif" width="16" height="16" border="0" alt=""></td>
-                <td class="jive-icon-label">
-                    <fmt:message key="warning.httpbinding.disabled">
-                        <fmt:param value="<a href=\"../../http-bind.jsp\">"/>
-                        <fmt:param value="</a>"/>
-                    </fmt:message>
-                </td></tr>
-            </tbody>
-        </table>
-    </div><br>
+        <admin:infobox type="warning">
+            <fmt:message key="warning.httpbinding.disabled">
+                <fmt:param value="<a href=\"../../http-bind.jsp\">"/>
+                <fmt:param value="</a>"/>
+            </fmt:message>
+        </admin:infobox>
     </c:if>
-     <div class="jive-contentBoxHeader"><fmt:message key="httpfileupload.settings.logs.title"/></div>
-     <div class="jive-contentBox">
+
+    <c:set var="logsTitle"><fmt:message key="httpfileupload.settings.logs.title"/></c:set>
+    <admin:contentBox title="${logsTitle}">
 	     <p>
 	     <fmt:message key="httpfileupload.settings.logs.link.announced">
              <fmt:param><c:out value="${announcedAddress}"/></fmt:param>
@@ -186,13 +179,13 @@
 	           <fmt:param value="<a href=\"../../http-bind.jsp\">"/>
 	           <fmt:param value="</a>"/>
 	         </fmt:message></p>
-    </div>
+    </admin:contentBox>
 
   <form action="httpfileupload-settings.jsp" method="post">
     <input type="hidden" name="csrf" value="${csrf}">
 
-    <div class="jive-contentBoxHeader"><fmt:message key="httpfileupload.settings.message.metadata.title"/></div>
-    <div class="jive-contentBox">
+    <c:set var="metadataTitle"><fmt:message key="httpfileupload.settings.message.metadata.title"/></c:set>
+    <admin:contentBox title="${metadataTitle}">
       <table>
         <tbody>
             <tr>
@@ -262,7 +255,7 @@
             
         </tbody>
       </table>
-    </div>
+    </admin:contentBox>
 
     <input type="submit" name="update" value="<fmt:message key="httpfileupload.settings.update.settings" />">
     <input type="submit" name="cancel" value="<fmt:message key="httpfileupload.settings.cancel" />">
