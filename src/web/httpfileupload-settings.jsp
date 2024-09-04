@@ -224,7 +224,7 @@
                    <br>
                    <fmt:message key="system_property.plugin.httpfileupload.announcedWebPort"/></td>
                <td>
-                   <input type="text" name="announcedPort" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebPort)}" />
+                   <input type="number" min="1" max="65535" name="announcedPort" size="10" maxlength="10" value="${admin:escapeHTMLTags(announcedWebPort)}" />
                </td>
                <td></td>
              </tr>
@@ -255,7 +255,7 @@
 	                   <br>
 	                   <fmt:message key="system_property.plugin.httpfileupload.maxFileSize"/></td>
 	               <td>
-	                   <input type="text" name="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
+	                   <input type="number" min="0" name="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
 	               </td>
 	               <td></td>
 	           </tr>
