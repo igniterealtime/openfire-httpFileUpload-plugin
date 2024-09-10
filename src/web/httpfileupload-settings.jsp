@@ -167,7 +167,7 @@
 	     </fmt:message>
 	     </p>
 
-         <c:if test="${not announcedAddress eq calculatedAddress}">
+         <c:if test="${not (announcedAddress eq calculatedAddress)}">
             <div class="warning">
                  <fmt:message key="${isCluster ? 'httpfileupload.settings.logs.link.cluster' : (isEncrypted ? 'httpfileupload.settings.logs.link.secure' : 'httpfileupload.settings.logs.link.unsecure' )}">
                      <fmt:param><c:out value="${calculatedAddress}"/></fmt:param>
