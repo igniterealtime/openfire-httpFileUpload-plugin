@@ -248,7 +248,7 @@
 	                   <br>
 	                   <fmt:message key="system_property.plugin.httpfileupload.maxFileSize"/></td>
 	               <td>
-	                   <input type="number" min="0" name="maxFileSize" id="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
+	                   <input type="number" min="-1" name="maxFileSize" id="maxFileSize" size="10" maxlength="10" value="${maxFileSize}" />
 	               </td>
 	               <td></td>
 	           </tr>
