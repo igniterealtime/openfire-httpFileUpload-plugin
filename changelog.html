@@ -41,9 +41,23 @@
 
 <h1>HTTP File Upload Plugin Changelog</h1>
 
-<p><b>1.5.0</b> -- (tbd)</p>
+<p><b>1.5.0</b> -- (to be determined)</p>
 <ul>
-    <li>Now requires Openfire 4.8.1 or later</li>
+    <li>Now requires Openfire 5.0.0 or later</li>
+    <li><a href="https://github.com/igniterealtime/openfire-httpFileUpload-plugin/issues/78">Issue #78:</a> Updated to HttpFileUploadComponent v2.0.1, which resolves:
+        <ul>
+            <li>Updated Whack from 3.0.0 to 3.1.0 (to make use of Tinder 2.1.0).</li>
+            <li>Switched to new Maven release infrastructure.</li>
+        </ul>
+    </li>
+    <li><a href="https://github.com/igniterealtime/openfire-httpFileUpload-plugin/issues/78">Issue #78:</a> Updated to HttpFileUploadComponent v2.0.0, which resolves:
+        <ul>
+            <li><a href="https://github.com/guusdk/httpfileuploadcomponent/issues/48">Issue #48:</a> Do not initialize null malwarescanner</li>
+            <li>Update Whack to 3.0.0 and Jetty to 12.0.22 (requires Java 17)</li>
+            <li>Implement configurable Content-Security-Policy</li>
+        </ul>
+    </li>
+    <li><a href="https://github.com/igniterealtime/openfire-httpFileUpload-plugin/issues/73">Issue #73:</a> Openfire 5.0.0 compatibility.</li>
     <li><a href="https://github.com/igniterealtime/openfire-httpFileUpload-plugin/issues/43">Issue #43:</a> ClassCastExceptions after reloading plugin in a cluster.</li>
 </ul>
 
