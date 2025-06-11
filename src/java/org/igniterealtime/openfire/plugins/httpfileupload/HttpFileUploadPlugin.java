@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Ignite Realtime Foundation. All rights reserved.
+ * Copyright (c) 2017-2025 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.PropertyEventDispatcher;
 import org.jivesoftware.util.PropertyEventListener;
 import org.jivesoftware.util.SystemProperty;
+import org.jivesoftware.util.cache.CacheFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -466,7 +467,6 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         {
             Log.error( "Unable to register component!", e );
         }
-
     }
 
     @Override
@@ -485,6 +485,8 @@ public class HttpFileUploadPlugin implements Plugin, PropertyEventListener
         }
 
         PropertyEventDispatcher.removeListener(this);
+
+        CacheFactory.dereferenceSerializingCache(OpenfireSlotProvider.CACHE_NAME);
     }
     
     public void check(String fileRepo ) throws IOException {
