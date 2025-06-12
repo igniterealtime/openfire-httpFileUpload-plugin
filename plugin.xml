@@ -5,7 +5,7 @@
     <description>Allows clients to share files, as described in the XEP-0363 'HTTP File Upload' specification.</description>
     <author>Guus der Kinderen</author>
     <version>${project.version}</version>
-    <date>2025-06-11</date>
+    <date>2025-06-12</date>
     <minServerVersion>5.0.0</minServerVersion>
     <csrfProtectionEnabled>true</csrfProtectionEnabled>
     
