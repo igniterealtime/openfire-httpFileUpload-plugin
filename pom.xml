@@ -10,7 +10,7 @@
     <artifactId>httpfileupload</artifactId>
     <name>HTTP File Upload Plugin</name>
     <description>Allows clients to share files, as described in the XEP-0363 'HTTP File Upload' specification.</description>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.1-SNAPSHOT</version>
 
     <distributionManagement>
         <!-- Repository in which we deploy this project, when desired. -->
