@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2025 Ignite Realtime Foundation. All rights reserved.
+ * Copyright (c) 2017-2026 Ignite Realtime Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class OpenfireSlotProvider implements SlotProvider
 
         // Unless there is specific configuration for this cache, default the max lifetime of entries in this cache to something that's fairly short.
         if (null == JiveGlobals.getProperty("cache." + slotsCache.getName().replaceAll(" ", "") + ".maxLifetime")) {
-            slotsCache.setMaxCacheSize(Duration.ofMinutes(5).toMillis());
+            slotsCache.setMaxLifetime(Duration.ofMinutes(5).toMillis());
         }
     }
 
